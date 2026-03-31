@@ -2,7 +2,7 @@ from typing import Annotated
 
 import aiosqlite
 from fastapi import APIRouter, Depends, HTTPException
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from auth import get_username
 from db import get_db
@@ -73,8 +73,8 @@ async def get_board(
 
 
 class CreateCardRequest(BaseModel):
-    title: str
-    details: str = ""
+    title: str = Field(..., min_length=1, max_length=255)
+    details: str = Field("", max_length=10_000)
     columnId: str
 
 
@@ -111,8 +111,8 @@ async def create_card(
 
 
 class UpdateCardRequest(BaseModel):
-    title: str | None = None
-    details: str | None = None
+    title: str | None = Field(None, min_length=1, max_length=255)
+    details: str | None = Field(None, max_length=10_000)
 
 
 @router.patch("/cards/{card_ref}")
@@ -220,7 +220,7 @@ async def move_card(
 
 
 class RenameColumnRequest(BaseModel):
-    title: str
+    title: str = Field(..., min_length=1, max_length=100)
 
 
 @router.patch("/columns/{slug}")

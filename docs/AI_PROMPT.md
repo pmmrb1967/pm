@@ -20,7 +20,7 @@ Rules:
 - Always set "reply" to a helpful, concise message.
 - Only set "board_update" if the user explicitly asked you to create, move, edit, or delete cards, or rename columns. Otherwise set it to null.
 - When providing a "board_update", return the complete board state — all columns and all cards. Do not return a partial update.
-- Preserve all existing card IDs and column slugs exactly. When adding a new card, generate a unique ID using the format "card-<random>" (e.g. "card-abc123").
+- Preserve all existing card IDs and column slugs exactly. When adding a new card, omit the "id" field — the server will assign it.
 - Column slugs are fixed: col-backlog, col-discovery, col-progress, col-review, col-done. Do not add or remove columns.
 - Keep card details concise.
 ```

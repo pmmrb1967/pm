@@ -20,10 +20,16 @@ import { api } from "@/lib/api";
 export const KanbanBoard = ({ onLogout }: { onLogout?: () => void }) => {
   const [board, setBoard] = useState<BoardData | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [saveError, setSaveError] = useState<string | null>(null);
   const [activeCardId, setActiveCardId] = useState<string | null>(null);
 
   const loadBoard = () => {
     api.getBoard().then(setBoard).catch(() => setError("Failed to load board."));
+  };
+
+  const showSaveError = (msg: string) => {
+    setSaveError(msg);
+    setTimeout(() => setSaveError(null), 4000);
   };
 
   useEffect(() => {
@@ -58,7 +64,10 @@ export const KanbanBoard = ({ onLogout }: { onLogout?: () => void }) => {
     if (!toColumn) return;
     const toIndex = toColumn.cardIds.indexOf(activeId);
 
-    api.moveCard(activeId, toColumn.id, toIndex).catch(() => setBoard(prevBoard));
+    api.moveCard(activeId, toColumn.id, toIndex).catch(() => {
+      setBoard(prevBoard);
+      showSaveError("Could not save — move reverted.");
+    });
   };
 
   const handleRenameColumn = (columnId: string, title: string) => {
@@ -68,7 +77,10 @@ export const KanbanBoard = ({ onLogout }: { onLogout?: () => void }) => {
       ...board,
       columns: board.columns.map((c) => (c.id === columnId ? { ...c, title } : c)),
     });
-    api.renameColumn(columnId, title).catch(() => setBoard(prevBoard));
+    api.renameColumn(columnId, title).catch(() => {
+      setBoard(prevBoard);
+      showSaveError("Could not save — rename reverted.");
+    });
   };
 
   const handleAddCard = async (columnId: string, title: string, details: string) => {
@@ -96,7 +108,10 @@ export const KanbanBoard = ({ onLogout }: { onLogout?: () => void }) => {
         c.id === columnId ? { ...c, cardIds: c.cardIds.filter((id) => id !== cardId) } : c
       ),
     });
-    api.deleteCard(cardId).catch(() => setBoard(prevBoard));
+    api.deleteCard(cardId).catch(() => {
+      setBoard(prevBoard);
+      showSaveError("Could not save — delete reverted.");
+    });
   };
 
   if (error) {
@@ -121,6 +136,12 @@ export const KanbanBoard = ({ onLogout }: { onLogout?: () => void }) => {
     <div className="relative overflow-hidden">
       <div className="pointer-events-none absolute left-0 top-0 h-[420px] w-[420px] -translate-x-1/3 -translate-y-1/3 rounded-full bg-[radial-gradient(circle,_rgba(32,157,215,0.25)_0%,_rgba(32,157,215,0.05)_55%,_transparent_70%)]" />
       <div className="pointer-events-none absolute bottom-0 right-0 h-[520px] w-[520px] translate-x-1/4 translate-y-1/4 rounded-full bg-[radial-gradient(circle,_rgba(117,57,145,0.18)_0%,_rgba(117,57,145,0.05)_55%,_transparent_75%)]" />
+
+      {saveError && (
+        <div className="fixed bottom-6 left-1/2 z-50 -translate-x-1/2 rounded-xl border border-red-200 bg-white px-5 py-3 text-sm text-red-600 shadow-[var(--shadow)]">
+          {saveError}
+        </div>
+      )}
 
       <main className="relative mx-auto flex min-h-screen max-w-[1500px] flex-col gap-10 px-6 pb-16 pt-12">
         <header className="flex flex-col gap-6 rounded-[32px] border border-[var(--stroke)] bg-white/80 p-8 shadow-[var(--shadow)] backdrop-blur">

@@ -20,7 +20,8 @@
       "Bash(python -m pytest -v)",
       "Bash(python -m pytest tests/test_ai.py -v)",
       "Bash(python -c \":*)",
-      "Bash(python -m pytest tests/test_ai_chat.py -v)"
+      "Bash(python -m pytest tests/test_ai_chat.py -v)",
+      "Bash(python -m pytest tests/ -v)"
     ]
   }
 }

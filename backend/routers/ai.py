@@ -1,8 +1,9 @@
 import json
+import re
 from typing import Annotated
 
 import aiosqlite
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 
 from auth import get_username
@@ -28,7 +29,7 @@ Rules:
 - Always set "reply" to a helpful, concise message.
 - Only set "board_update" if the user explicitly asked you to create, move, edit, or delete cards, or rename columns. Otherwise set it to null.
 - When providing a "board_update", return the complete board state — all columns and all cards. Do not return a partial update.
-- Preserve all existing card IDs and column slugs exactly. When adding a new card, generate a unique ID using the format "card-<random>" (e.g. "card-abc123").
+- Preserve all existing card IDs and column slugs exactly. When adding a new card, omit the "id" field — the server will assign it.
 - Column slugs are fixed: col-backlog, col-discovery, col-progress, col-review, col-done. Do not add or remove columns.
 - Keep card details concise.
 - Respond ONLY with the JSON object. No markdown, no code fences."""
@@ -129,18 +130,29 @@ async def ai_chat(
 
     raw = await chat(messages)
 
-    # Strip markdown code fences if the model adds them
+    # Strip markdown code fences if the model adds them despite instructions
     text = raw.strip()
-    if text.startswith("```"):
-        text = text.split("\n", 1)[-1]
-        text = text.rsplit("```", 1)[0].strip()
+    fence_match = re.search(r"```(?:json)?\s*(\{.*\})\s*```", text, re.DOTALL)
+    if fence_match:
+        text = fence_match.group(1)
 
-    parsed = json.loads(text)
+    try:
+        parsed = json.loads(text)
+    except json.JSONDecodeError as exc:
+        raise HTTPException(status_code=502, detail=f"AI returned unparseable response: {exc}")
+
+    if not isinstance(parsed.get("reply"), str):
+        raise HTTPException(status_code=502, detail="AI response missing 'reply' field")
+
     reply: str = parsed["reply"]
     board_update = parsed.get("board_update")
 
     board_updated = False
     if board_update:
+        if not isinstance(board_update, dict) \
+                or not isinstance(board_update.get("columns"), list) \
+                or not isinstance(board_update.get("cards"), dict):
+            raise HTTPException(status_code=502, detail="AI returned invalid board_update structure")
         await _apply_board_update(db, board_id, board_update)
         board_updated = True
 
