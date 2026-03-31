@@ -22,6 +22,7 @@ echo "Starting container..."
 docker run -d \
     --name "$CONTAINER_NAME" \
     -p "${PORT}:8000" \
+    --env-file "$PROJECT_DIR/.env" \
     "$IMAGE_NAME"
 
 echo "Kanban Studio running at http://localhost:${PORT}"

@@ -16,7 +16,7 @@ WORKDIR /app/backend
 
 # Install Python dependencies
 COPY backend/pyproject.toml .
-RUN uv pip install --system --no-cache fastapi "uvicorn[standard]" aiosqlite
+RUN uv pip install --system --no-cache fastapi "uvicorn[standard]" aiosqlite httpx
 
 COPY backend/ .
 

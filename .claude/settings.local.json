@@ -17,7 +17,9 @@
       "Bash(curl -s -o /dev/null -w \"POST /api/login \\(correct\\)  → %{http_code}\\\\n\" -X POST -H \"Content-Type: application/json\" -d '{\"\"username\"\":\"\"user\"\",\"\"password\"\":\"\"password\"\"}' http://localhost:8000/api/login)",
       "Bash(curl -s -o /dev/null -w \"POST /api/login \\(wrong\\)  → %{http_code}\\\\n\" -X POST -H \"Content-Type: application/json\" -d '{\"\"username\"\":\"\"x\"\",\"\"password\"\":\"\"y\"\"}' http://localhost:8000/api/login)",
       "Bash(pip install:*)",
-      "Bash(python -m pytest -v)"
+      "Bash(python -m pytest -v)",
+      "Bash(python -m pytest tests/test_ai.py -v)",
+      "Bash(python -c \":*)"
     ]
   }
 }

@@ -1,20 +1,43 @@
-import { render, screen, within } from "@testing-library/react";
+import { render, screen, within, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { vi } from "vitest";
+import { vi, beforeEach } from "vitest";
 import { KanbanBoard } from "@/components/KanbanBoard";
+import { initialData } from "@/lib/kanban";
 
-const getFirstColumn = () => screen.getAllByTestId(/column-/i)[0];
+vi.mock("@/lib/api", () => ({
+  api: {
+    getBoard: vi.fn(),
+    createCard: vi.fn(),
+    updateCard: vi.fn(),
+    deleteCard: vi.fn(),
+    moveCard: vi.fn(),
+    renameColumn: vi.fn(),
+  },
+}));
+
+import { api } from "@/lib/api";
+
+beforeEach(() => {
+  vi.mocked(api.getBoard).mockResolvedValue(structuredClone(initialData));
+  vi.mocked(api.createCard).mockResolvedValue({ id: "card-new", title: "New card", details: "Notes" });
+  vi.mocked(api.deleteCard).mockResolvedValue(undefined);
+  vi.mocked(api.renameColumn).mockResolvedValue({ id: "col-backlog", title: "New Name" });
+  vi.mocked(api.moveCard).mockResolvedValue({ ok: true });
+});
+
+const waitForBoard = () => screen.findAllByTestId(/column-/i);
 
 describe("KanbanBoard", () => {
-  it("renders five columns", () => {
+  it("renders five columns after loading", async () => {
     render(<KanbanBoard onLogout={vi.fn()} />);
-    expect(screen.getAllByTestId(/column-/i)).toHaveLength(5);
+    const columns = await waitForBoard();
+    expect(columns).toHaveLength(5);
   });
 
   it("renames a column", async () => {
     render(<KanbanBoard onLogout={vi.fn()} />);
-    const column = getFirstColumn();
-    const input = within(column).getByLabelText("Column title");
+    const [firstColumn] = await waitForBoard();
+    const input = within(firstColumn).getByLabelText("Column title");
     await userEvent.clear(input);
     await userEvent.type(input, "New Name");
     expect(input).toHaveValue("New Name");
@@ -22,26 +45,22 @@ describe("KanbanBoard", () => {
 
   it("adds and removes a card", async () => {
     render(<KanbanBoard onLogout={vi.fn()} />);
-    const column = getFirstColumn();
-    const addButton = within(column).getByRole("button", {
-      name: /add a card/i,
-    });
-    await userEvent.click(addButton);
+    const [firstColumn] = await waitForBoard();
 
-    const titleInput = within(column).getByPlaceholderText(/card title/i);
-    await userEvent.type(titleInput, "New card");
-    const detailsInput = within(column).getByPlaceholderText(/details/i);
-    await userEvent.type(detailsInput, "Notes");
+    await userEvent.click(within(firstColumn).getByRole("button", { name: /add a card/i }));
+    await userEvent.type(within(firstColumn).getByPlaceholderText(/card title/i), "New card");
+    await userEvent.type(within(firstColumn).getByPlaceholderText(/details/i), "Notes");
+    await userEvent.click(within(firstColumn).getByRole("button", { name: /add card/i }));
 
-    await userEvent.click(within(column).getByRole("button", { name: /add card/i }));
+    await waitFor(() =>
+      expect(within(firstColumn).getByText("New card")).toBeInTheDocument()
+    );
 
-    expect(within(column).getByText("New card")).toBeInTheDocument();
+    vi.mocked(api.deleteCard).mockResolvedValue(undefined);
+    await userEvent.click(within(firstColumn).getByRole("button", { name: /delete new card/i }));
 
-    const deleteButton = within(column).getByRole("button", {
-      name: /delete new card/i,
-    });
-    await userEvent.click(deleteButton);
-
-    expect(within(column).queryByText("New card")).not.toBeInTheDocument();
+    await waitFor(() =>
+      expect(within(firstColumn).queryByText("New card")).not.toBeInTheDocument()
+    );
   });
 });

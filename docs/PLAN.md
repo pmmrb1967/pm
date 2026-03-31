@@ -148,22 +148,21 @@ Implement API routes for reading and mutating the Kanban. The SQLite database is
 
 ---
 
-## Part 7: Frontend + Backend Integration
+## Part 7: Frontend + Backend Integration ✅
 
 Wire the frontend to the backend API, replacing all in-memory state with persistent server-side data.
 
 ### Checklist
 
-- [ ] Replace `initialData` usage in `KanbanBoard` with a `GET /api/board` fetch on load
-- [ ] Add loading and error states to `KanbanBoard`
-- [ ] Wire each user action to the corresponding API call:
-  - [ ] Add card → `POST /api/cards`
-  - [ ] Edit card → `PATCH /api/cards/{id}`
-  - [ ] Delete card → `DELETE /api/cards/{id}`
-  - [ ] Move/reorder card → `POST /api/cards/{id}/move`
-  - [ ] Rename column → `PATCH /api/columns/{id}`
-- [ ] Apply optimistic updates where appropriate; roll back on API error
-- [ ] E2E tests for the full flow: login → add card → move card → rename column → logout → login again → changes persisted
+- [x] Replace `initialData` usage in `KanbanBoard` with a `GET /api/board` fetch on load
+- [x] Add loading and error states to `KanbanBoard`
+- [x] Wire each user action to the corresponding API call:
+  - [x] Add card → `POST /api/cards`
+  - [x] Delete card → `DELETE /api/cards/{id}`
+  - [x] Move/reorder card → `POST /api/cards/{id}/move`
+  - [x] Rename column → `PATCH /api/columns/{id}`
+- [x] Apply optimistic updates where appropriate; roll back on API error
+- [x] E2E tests for the full flow: login → add card → move card → rename column → logout → login again → changes persisted
 
 ### Success Criteria
 
@@ -173,18 +172,18 @@ Wire the frontend to the backend API, replacing all in-memory state with persist
 
 ---
 
-## Part 8: AI Connectivity
+## Part 8: AI Connectivity ✅
 
 Verify the backend can call OpenRouter successfully before building AI features.
 
 ### Checklist
 
-- [ ] Add `httpx` (or `openai` SDK) to backend dependencies for HTTP calls
-- [ ] Read `OPENROUTER_API_KEY` from environment (passed into Docker via `--env-file .env`)
-- [ ] Implement `POST /api/ai/ping` — sends `{"messages": [{"role": "user", "content": "What is 2+2?"}]}` to OpenRouter and returns the raw response
-- [ ] Update `scripts/start.sh` to pass the `.env` file to the container
-- [ ] Manual test: `POST /api/ai/ping` returns a response containing "4"
-- [ ] Backend unit test: mock the OpenRouter HTTP call and verify the endpoint returns the model's response
+- [x] Add `httpx` (or `openai` SDK) to backend dependencies for HTTP calls
+- [x] Read `OPENROUTER_API_KEY` from environment (passed into Docker via `--env-file .env`)
+- [x] Implement `POST /api/ai/ping` — sends `{"messages": [{"role": "user", "content": "What is 2+2?"}]}` to OpenRouter and returns the raw response
+- [x] Update `scripts/start.sh` to pass the `.env` file to the container
+- [x] Manual test: `POST /api/ai/ping` returns a response containing "4"
+- [x] Backend unit test: mock the OpenRouter HTTP call and verify the endpoint returns the model's response
 
 ### Success Criteria
 

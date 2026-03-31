@@ -1,12 +1,26 @@
 import { expect, test } from "@playwright/test";
+import { initialData } from "../src/lib/kanban";
 
-// Inject a fake auth token and mock /api/me so board tests work without a backend.
+// Inject a fake auth token and mock all API calls so board tests work without a backend.
 test.beforeEach(async ({ page }) => {
   await page.addInitScript(() => {
     localStorage.setItem("kanban_token", "test-token");
   });
   await page.route("/api/me", (route) =>
     route.fulfill({ status: 200, body: JSON.stringify({ username: "user" }) })
+  );
+  await page.route("/api/board", (route) =>
+    route.fulfill({ status: 200, body: JSON.stringify(initialData) })
+  );
+  await page.route("/api/cards", (route) => {
+    const body = route.request().postDataJSON();
+    route.fulfill({
+      status: 201,
+      body: JSON.stringify({ id: "card-new", title: body.title, details: body.details }),
+    });
+  });
+  await page.route("/api/cards/**", (route) =>
+    route.fulfill({ status: 200, body: JSON.stringify({ ok: true }) })
   );
 });
 
@@ -32,20 +46,11 @@ test("moves a card between columns", async ({ page }) => {
   const targetColumn = page.getByTestId("column-col-review");
   const cardBox = await card.boundingBox();
   const columnBox = await targetColumn.boundingBox();
-  if (!cardBox || !columnBox) {
-    throw new Error("Unable to resolve drag coordinates.");
-  }
+  if (!cardBox || !columnBox) throw new Error("Unable to resolve drag coordinates.");
 
-  await page.mouse.move(
-    cardBox.x + cardBox.width / 2,
-    cardBox.y + cardBox.height / 2
-  );
+  await page.mouse.move(cardBox.x + cardBox.width / 2, cardBox.y + cardBox.height / 2);
   await page.mouse.down();
-  await page.mouse.move(
-    columnBox.x + columnBox.width / 2,
-    columnBox.y + 120,
-    { steps: 12 }
-  );
+  await page.mouse.move(columnBox.x + columnBox.width / 2, columnBox.y + 120, { steps: 12 });
   await page.mouse.up();
   await expect(targetColumn.getByTestId("card-card-1")).toBeVisible();
 });
