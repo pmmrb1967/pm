@@ -1,0 +1,23 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(bash scripts/start.sh 2>&1)",
+      "Bash(curl -s -o /dev/null -w \"GET /  → %{http_code}\\\\n\" http://localhost:8000/)",
+      "Bash(curl -s -o /dev/null -w \"GET /api/health  → %{http_code}\\\\n\" http://localhost:8000/api/health)",
+      "Bash(curl -s http://localhost:8000/api/health)",
+      "Bash(curl -s -o /dev/null -w \"GET /api/missing  → %{http_code}\\\\n\" http://localhost:8000/api/missing)",
+      "Bash(curl -s -w \"\\\\nContent-Type: %{content_type}\\\\n\" -o /dev/null http://localhost:8000/)",
+      "Bash(npm run:*)",
+      "Bash(bash scripts/stop.sh)",
+      "Bash(npm install:*)",
+      "Bash(bash scripts/start.sh)",
+      "Bash(curl -s -o /dev/null -w \"GET /login → %{http_code}\\\\n\" http://localhost:8000/login)",
+      "Bash(curl -s -o /dev/null -w \"GET /login/  → %{http_code}\\\\n\" http://localhost:8000/login/)",
+      "Bash(curl -s -o /dev/null -w \"GET /login  → %{http_code}\\\\n\" http://localhost:8000/login)",
+      "Bash(curl -s -o /dev/null -w \"POST /api/login \\(correct\\)  → %{http_code}\\\\n\" -X POST -H \"Content-Type: application/json\" -d '{\"\"username\"\":\"\"user\"\",\"\"password\"\":\"\"password\"\"}' http://localhost:8000/api/login)",
+      "Bash(curl -s -o /dev/null -w \"POST /api/login \\(wrong\\)  → %{http_code}\\\\n\" -X POST -H \"Content-Type: application/json\" -d '{\"\"username\"\":\"\"x\"\",\"\"password\"\":\"\"y\"\"}' http://localhost:8000/api/login)",
+      "Bash(pip install:*)",
+      "Bash(python -m pytest -v)"
+    ]
+  }
+}

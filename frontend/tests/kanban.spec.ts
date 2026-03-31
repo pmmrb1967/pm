@@ -1,5 +1,15 @@
 import { expect, test } from "@playwright/test";
 
+// Inject a fake auth token and mock /api/me so board tests work without a backend.
+test.beforeEach(async ({ page }) => {
+  await page.addInitScript(() => {
+    localStorage.setItem("kanban_token", "test-token");
+  });
+  await page.route("/api/me", (route) =>
+    route.fulfill({ status: 200, body: JSON.stringify({ username: "user" }) })
+  );
+});
+
 test("loads the kanban board", async ({ page }) => {
   await page.goto("/");
   await expect(page.getByRole("heading", { name: "Kanban Studio" })).toBeVisible();
