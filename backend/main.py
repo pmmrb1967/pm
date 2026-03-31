@@ -8,6 +8,7 @@ from pydantic import BaseModel
 from auth import create_token, get_username, validate_credentials
 from db import init_db
 from routers.board import router as board_router
+from routers.ai import router as ai_router
 from ai import chat
 
 from fastapi import Depends, HTTPException, Request
@@ -23,6 +24,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 app.include_router(board_router)
+app.include_router(ai_router)
 
 
 @app.exception_handler(RuntimeError)

@@ -39,4 +39,10 @@ export const api = {
 
   renameColumn: (columnId: string, title: string) =>
     request<{ id: string; title: string }>("PATCH", `/api/columns/${columnId}`, { title }),
+
+  chat: (message: string, history: { role: string; content: string }[]) =>
+    request<{ reply: string; board_updated: boolean }>("POST", "/api/ai/chat", {
+      message,
+      history,
+    }),
 };

@@ -13,6 +13,7 @@ import {
 } from "@dnd-kit/core";
 import { KanbanColumn } from "@/components/KanbanColumn";
 import { KanbanCardPreview } from "@/components/KanbanCardPreview";
+import { AIChatSidebar } from "@/components/AIChatSidebar";
 import { moveCard, type BoardData } from "@/lib/kanban";
 import { api } from "@/lib/api";
 
@@ -21,8 +22,12 @@ export const KanbanBoard = ({ onLogout }: { onLogout?: () => void }) => {
   const [error, setError] = useState<string | null>(null);
   const [activeCardId, setActiveCardId] = useState<string | null>(null);
 
-  useEffect(() => {
+  const loadBoard = () => {
     api.getBoard().then(setBoard).catch(() => setError("Failed to load board."));
+  };
+
+  useEffect(() => {
+    loadBoard();
   }, []);
 
   const sensors = useSensors(
@@ -191,6 +196,7 @@ export const KanbanBoard = ({ onLogout }: { onLogout?: () => void }) => {
           </DragOverlay>
         </DndContext>
       </main>
+      <AIChatSidebar onBoardUpdate={loadBoard} />
     </div>
   );
 };

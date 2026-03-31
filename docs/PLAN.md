@@ -193,28 +193,28 @@ Verify the backend can call OpenRouter successfully before building AI features.
 
 ---
 
-## Part 9: AI Board Integration
+## Part 9: AI Board Integration ✅
 
 Extend the AI endpoint to accept the user's question plus board state, and respond with structured output that optionally updates the board.
 
 ### Checklist
 
-- [ ] Define the structured output schema:
+- [x] Define the structured output schema:
   ```json
   {
     "reply": "string (message shown to user)",
     "board_update": null | { BoardData }
   }
   ```
-- [ ] Implement `POST /api/ai/chat`:
-  - [ ] Accepts `{message: string, history: [{role, content}]}`
-  - [ ] Fetches the user's current board, serialises it to JSON
-  - [ ] Calls OpenRouter with system prompt (board JSON) + conversation history + user message
-  - [ ] Uses structured outputs / response format to enforce the schema
-  - [ ] If `board_update` is non-null, atomically applies the update to the database
-  - [ ] Returns `{reply, board_updated: bool}`
-- [ ] Backend unit tests: mock OpenRouter, test reply-only and reply+board-update paths
-- [ ] Document the system prompt in `docs/AI_PROMPT.md`
+- [x] Implement `POST /api/ai/chat`:
+  - [x] Accepts `{message: string, history: [{role, content}]}`
+  - [x] Fetches the user's current board, serialises it to JSON
+  - [x] Calls OpenRouter with system prompt (board JSON) + conversation history + user message
+  - [x] Uses structured outputs / response format to enforce the schema
+  - [x] If `board_update` is non-null, atomically applies the update to the database
+  - [x] Returns `{reply, board_updated: bool}`
+- [x] Backend unit tests: mock OpenRouter, test reply-only and reply+board-update paths
+- [x] Document the system prompt in `docs/AI_PROMPT.md`
 
 ### Success Criteria
 
@@ -224,21 +224,21 @@ Extend the AI endpoint to accept the user's question plus board state, and respo
 
 ---
 
-## Part 10: AI Chat Sidebar UI
+## Part 10: AI Chat Sidebar UI ✅
 
 Add a chat sidebar to the Kanban board that streams AI responses and auto-refreshes the board when the AI makes changes.
 
 ### Checklist
 
-- [ ] Add a sidebar panel component (`AIChatSidebar`) to the main layout
-  - [ ] Input field + send button
-  - [ ] Scrollable message history (user + assistant turns)
-  - [ ] Disabled/loading state while awaiting response
-- [ ] On send, call `POST /api/ai/chat` and append the reply to the history
-- [ ] If `board_updated: true` is returned, re-fetch `GET /api/board` and update the Kanban state
-- [ ] Sidebar is togglable (show/hide button) so the board can be used full-width
-- [ ] Style using the existing design system (CSS variables, Tailwind)
-- [ ] E2E test: send a message that causes a board update (mocked backend), confirm the board reflects the change without a full page reload
+- [x] Add a sidebar panel component (`AIChatSidebar`) to the main layout
+  - [x] Input field + send button
+  - [x] Scrollable message history (user + assistant turns)
+  - [x] Disabled/loading state while awaiting response
+- [x] On send, call `POST /api/ai/chat` and append the reply to the history
+- [x] If `board_updated: true` is returned, re-fetch `GET /api/board` and update the Kanban state
+- [x] Sidebar is togglable (show/hide button) so the board can be used full-width
+- [x] Style using the existing design system (CSS variables, Tailwind)
+- [x] E2E test: send a message that causes a board update (mocked backend), confirm the board reflects the change without a full page reload
 
 ### Success Criteria
 
